@@ -7,10 +7,11 @@ import { useData } from './components/useData';
 import { AxisBottom } from './components/AxisBottom';
 import { AxisLeft } from './components/AxisLeft';
 import { Marks } from './components/Marks';
+import { ColorLegend } from './components/ColorLegend';
 // import { DropdownMenu } from './components/Dropdown';
 
 // https://www.youtube.com/watch?v=2LhoCfjm8R4
-// 7:45:57
+// 8:46:00
 
 
 const menuHeight = 60
@@ -19,10 +20,11 @@ const height = window.innerHeight - menuHeight;
 
 // const width = 1700
 // const height = 500
-const margin = { top: 50, right: 100, bottom: 80, left: 100 };
-const xAxisLabelOffset = 60;
-const yAxisLabelOffset = 60;
-const xAxisTickFormat = n => format('.2s')(n).replace('G', 'B')
+const margin = { top: 100, right: 300, bottom: 150, left: 150 };
+const xAxisLabelOffset = 100;
+const yAxisLabelOffset = 70;
+const xAxisTickFormat = n => format('.2s')(n).replace('G', 'B');
+const fadeOpacity = 0.2
 
 const attributes = [
   { value: 'sepal_length', label: 'Sepal Length' },
@@ -41,7 +43,9 @@ const getLabel = value => {
 }
 
 function App() {
-  const data = useData()
+  const data = useData();
+  const [hoveredValue, setHoveredValue] = useState(null);
+  // console.log(hoveredValue)
 
   const initialXAttribute = 'petal_length';
   const [ xAttribute, setXAttribute ] = useState(initialXAttribute);
@@ -61,9 +65,11 @@ function App() {
   const innerHeight = height - margin.top - margin.bottom;
   const innerWidth = width - margin.left - margin.right;
    
-  
-
   const colorValue = (d) => d.class;
+  const colorLegendLabel = 'Species';
+  const circleRadius = 7
+
+  const filteredData = data.filter(d => hoveredValue === colorValue(d));
 
 // Because scatter plots will not necessarily have a zero as 
 // beginning value we use extent
@@ -85,6 +91,7 @@ function App() {
     
     // console.log(data[0])
     // console.log(xScale.ticks())
+    console.log(innerWidth)
 
    return (
     <Fragment>
@@ -130,7 +137,27 @@ function App() {
           >
             {yAxisLabel}
           </text>
-          <Marks
+          <g transform={`translate(${innerWidth + 50 })`}>
+            <text
+              x={80}
+              y={-25}
+              className="axis-label" 
+              textAnchor="middle"
+            >
+              {colorLegendLabel}
+            </text>
+            <ColorLegend 
+              tickSpacing={30}
+              tickSize={circleRadius}
+              tickTextOffset={20}
+              colorScale={colorScale}
+              fadeOpacity={fadeOpacity}
+              onHover={setHoveredValue}
+              hoveredValue={hoveredValue}
+            />
+          </g>
+          <g opacity={hoveredValue ? fadeOpacity : 1}>
+            <Marks
             data={data}
             xScale={xScale}
             xValue={xValue}
@@ -139,7 +166,19 @@ function App() {
             colorScale={colorScale}
             colorValue={colorValue}
             tooltipFormat={xAxisTickFormat}
-            circleRadius={7}
+            circleRadius={circleRadius}
+          />
+          </g>
+          <Marks
+            data={filteredData}
+            xScale={xScale}
+            xValue={xValue}
+            yScale={yScale}
+            yValue={yValue}
+            colorScale={colorScale}
+            colorValue={colorValue}
+            tooltipFormat={xAxisTickFormat}
+            circleRadius={circleRadius}
           />
         </g>
       </svg>

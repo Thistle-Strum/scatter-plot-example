@@ -47,3 +47,17 @@ select option {
   align-items: center;
 }
 
+.tick line {
+  stroke: #C0C0BB;
+}
+
+.tick text {
+  fill: #635F5D;
+  cursor: default;
+}
+
+.axis-label {
+  font-size: 2em;
+  fill: #635F5D;
+}
+
